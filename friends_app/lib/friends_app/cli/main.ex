@@ -1,6 +1,6 @@
 defmodule FriendsApp.CLI.Main do
   alias Mix.Shell.IO, as: Shell
-  alias FriendsApp.CLI.{MenuChoice}
+  alias FriendsApp.CLI.Menu.Choice
 
   def start_app do
     Shell.cmd("clear")
@@ -19,6 +19,6 @@ defmodule FriendsApp.CLI.Main do
   end
 
   defp starts_menu_choice do
-    MenuChoice.start()
+    Choice.start()
   end
 end

@@ -1,21 +1,15 @@
 # FriendsApp
 
-**TODO: Add description**
+Aplicação que foi desenvolvida seguindo o curso de programação funcional de elixir.
 
-## Installation
+## Instalação
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `friends_app` to your list of dependencies in `mix.exs`:
+- mix deps.get
 
-```elixir
-def deps do
-  [
-    {:friends_app, "~> 0.1.0"}
-  ]
-end
-```
+## Executar
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/friends_app](https://hexdocs.pm/friends_app).
+- mix start
 
+## Utilitários
+
+- mix utils.add_fake_friends

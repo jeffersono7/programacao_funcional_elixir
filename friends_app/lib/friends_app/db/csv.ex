@@ -8,7 +8,7 @@ defmodule FriendsApp.DB.CSV do
     case id do
       :create -> create()
       :read -> read()
-      :update -> Shell.info(">>> UPDATE <<<")
+      :update -> update()
       :delete -> delete()
     end
 
@@ -16,6 +16,49 @@ defmodule FriendsApp.DB.CSV do
   end
 
   def perform(_), do: :error
+
+  defp update do
+    Shell.cmd("clear")
+
+    prompt_message("Digite o email do amigo que deseja atualizar: ")
+    |> search_friend_by_email()
+    |> check_friend_found()
+    |> confirm_update()
+    |> do_update()
+  end
+
+  defp confirm_update(friend) do
+    Shell.cmd("clear")
+    Shell.info("Encontramos...")
+
+    show_friend(friend)
+
+    case Shell.yes?("Deseja realmente atualizar esse amigo?") do
+      true -> friend
+      false -> :error
+    end
+  end
+
+  defp do_update(friend) do
+    Shell.cmd("clear")
+    Shell.info("Agora você irá digitar os novos dados do seu amigo...")
+
+    update_friend = collect_data()
+
+    get_struct_list_from_csv()
+    |> delete_friend_from_struct_list(friend)
+    |> friend_list_to_csv()
+    |> prepare_list_to_save_csv()
+    |> save_csv_file()
+
+    update_friend
+    |> transform_on_wrapped_list()
+    |> prepare_list_to_save_csv()
+    |> save_csv_file([:append])
+
+    Shell.info("Amigo atualizado com sucesso!")
+    Shell.prompt("Pressione ENTER para continuar")
+  end
 
   defp delete do
     Shell.cmd("clear")
@@ -101,7 +144,7 @@ defmodule FriendsApp.DB.CSV do
   end
 
   defp parse_csv_file_to_list(csv_file) do
-    csv_file |> CSVParser.parse_string(headers: false)
+    csv_file |> CSVParser.parse_string()
   end
 
   defp csv_list_to_friend_struct_list(csv_list) do

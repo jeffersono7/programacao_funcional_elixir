@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Utils.AddFakeFriends do
 
     Faker.start(:pt)
 
-    create_friends(1_500_000)
+    create_friends(5_000)
     |> CSVParser.dump_to_iodata()
     |> save_csv_file()
 

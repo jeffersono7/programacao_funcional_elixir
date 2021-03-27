@@ -18,10 +18,11 @@ defmodule FriendsApp.DB.CSV do
   def perform(_), do: :error
 
   defp read do
-    File.read!("#{File.cwd!()}/friends.csv")
+    Application.fetch_env!(:friends_app, :csv_file_path)
+    |> File.read!()
     |> CSVParser.parse_string(headers: false)
     |> Enum.map(fn [email, name, phone] ->
-      %{
+      %Friend{
         name: name,
         email: email,
         phone: phone
@@ -32,6 +33,7 @@ defmodule FriendsApp.DB.CSV do
 
   defp create do
     collect_data()
+    |> Map.from_struct()
     |> Map.values()
     |> wrap_in_list()
     |> CSVParser.dump_to_iodata()
@@ -58,6 +60,7 @@ defmodule FriendsApp.DB.CSV do
   end
 
   defp save_csv_file(data) do
-    File.write!("#{File.cwd!()}/friends.csv", data, [:append])
+    Application.fetch_env!(:friends_app, :csv_file_path)
+    |> File.write!(data, [:append])
   end
 end

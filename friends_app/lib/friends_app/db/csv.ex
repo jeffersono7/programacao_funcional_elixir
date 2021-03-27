@@ -9,13 +9,80 @@ defmodule FriendsApp.DB.CSV do
       :create -> create()
       :read -> read()
       :update -> Shell.info(">>> UPDATE <<<")
-      :delete -> Shell.info(">>> DELETE <<<")
+      :delete -> delete()
     end
 
     FriendsApp.CLI.Menu.Choice.start()
   end
 
   def perform(_), do: :error
+
+  defp delete do
+    Shell.cmd("clear")
+
+    prompt_message("Digite o email do amigo a ser excluído: ")
+    |> search_friend_by_email()
+    |> check_friend_found()
+    |> confirm_delete()
+    |> delete_and_save()
+  end
+
+  defp search_friend_by_email(email) do
+    get_struct_list_from_csv()
+    |> Enum.find(:not_found, fn list ->
+      list.email == email
+    end)
+  end
+
+  defp check_friend_found(:not_found) do
+    Shell.cmd("clear")
+    Shell.error("Amigo não encontrado...")
+    Shell.prompt("Pressione ENTER para continuar")
+
+    FriendsApp.CLI.Menu.Choice.start()
+  end
+
+  defp check_friend_found(friend), do: friend
+
+  defp confirm_delete(friend) do
+    Shell.cmd("clear")
+    Shell.info("Encontramos...")
+
+    show_friend(friend)
+
+    case Shell.yes?("Deseja realmente apagar esse amigo da lista?") do
+      true -> friend
+      false -> :error
+    end
+  end
+
+  defp show_friend(friend) do
+    friend
+    |> Scribe.print(data: [{"Nome", :name}, {"Email", :email}, {"Telefone", :phone}])
+  end
+
+  defp delete_and_save(:error) do
+    Shell.info("Ok, o amigo NÃO será excluído...")
+    Shell.info("Pressione ENTER para continuar")
+  end
+
+  defp delete_and_save(friend) do
+    get_struct_list_from_csv()
+    |> delete_friend_from_struct_list(friend)
+    |> friend_list_to_csv()
+    |> prepare_list_to_save_csv()
+    |> save_csv_file()
+  end
+
+  defp delete_friend_from_struct_list(list, friend) do
+    list
+    |> Enum.reject(fn elem -> elem.email == friend.email end)
+  end
+
+  defp friend_list_to_csv(list) do
+    list
+    |> Enum.map(fn item -> [item.email, item.name, item.phone] end)
+  end
 
   defp read do
     get_struct_list_from_csv()

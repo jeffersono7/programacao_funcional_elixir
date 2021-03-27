@@ -18,9 +18,27 @@ defmodule FriendsApp.DB.CSV do
   def perform(_), do: :error
 
   defp read do
+    get_struct_list_from_csv()
+    |> show_friends()
+  end
+
+  defp get_struct_list_from_csv do
+    read_csv_file()
+    |> parse_csv_file_to_list()
+    |> csv_list_to_friend_struct_list()
+  end
+
+  defp read_csv_file do
     Application.fetch_env!(:friends_app, :csv_file_path)
     |> File.read!()
-    |> CSVParser.parse_string(headers: false)
+  end
+
+  defp parse_csv_file_to_list(csv_file) do
+    csv_file |> CSVParser.parse_string(headers: false)
+  end
+
+  defp csv_list_to_friend_struct_list(csv_list) do
+    csv_list
     |> Enum.map(fn [email, name, phone] ->
       %Friend{
         name: name,
@@ -28,6 +46,10 @@ defmodule FriendsApp.DB.CSV do
         phone: phone
       }
     end)
+  end
+
+  defp show_friends(friends_list) do
+    friends_list
     |> Scribe.console(data: [{"Nome", :name}, {"Email", :email}, {"Telefone", :phone}])
   end
 
